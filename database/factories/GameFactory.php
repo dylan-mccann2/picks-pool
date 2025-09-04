@@ -38,8 +38,8 @@ class GameFactory extends Factory
           $game['competitions'][0]['competitors'][0]['homeAway'] => $game['competitions'][0]['competitors'][0]['team']['name'],
           $game['competitions'][0]['competitors'][1]['homeAway'] => $game['competitions'][0]['competitors'][1]['team']['name'],
           'week' => $week,
-          'over' => 0,
-          'spread' => 0,
+          'over' => '0',
+          'spread' => '0',
           'homeFinal' => '0',
           'awayFinal' => '0',
         ]);

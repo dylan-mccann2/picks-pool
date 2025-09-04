@@ -19,10 +19,10 @@ return new class extends Migration
           $table->string('overId');
           $table->float('under');
           $table->string('underId');
-          $table->float('favoriteSpread');
+          $table->string('favoriteSpread');
           $table->string('favoriteId');
           $table->string('favoriteTeam');
-          $table->float('underdogSpread');
+          $table->string('underdogSpread');
           $table->string('underdogId');
           $table->string('underdogTeam');
           $table->string('userId');

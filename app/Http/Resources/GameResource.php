@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use DateTimeImmutable;
 
 class GameResource extends JsonResource
 {
@@ -14,12 +15,14 @@ class GameResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+      $date = date_create($this->startTime);
+      $date = date_format($date, 'D, M j, g:i');
         return [
           'home' => $this->home,
           'away' => $this->away,
           'over' => $this->over,
           'spread' => $this->spread,
-          'startTime' => $this->startTime,
+          'startTime' => $date,
           'gameId' => $this->gameId
         ];
     }

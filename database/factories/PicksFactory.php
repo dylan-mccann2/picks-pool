@@ -25,10 +25,10 @@ class PicksFactory extends Factory
           'overId' => '0',
           'under' => 0.0,
           'underId' => '0',
-          'favoriteSpread' => 0.0,
+          'favoriteSpread' => '0',
           'favoriteId' => '',
           'favoriteTeam' => '',
-          'underdogSpread' => 0.0,
+          'underdogSpread' => '0',
           'underdogId' => '',
           'underdogTeam' => '',
         ];
