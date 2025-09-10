@@ -1,52 +1,97 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Form, useForm, Head } from '@inertiajs/vue3';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select/';
+import { computed } from 'vue';
+import { useForm, Head } from '@inertiajs/vue3';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 
-function anyPicks(g1: any, g2: any, g3: any, g4: any){
-  return g1 || g2 || g3 || g4;
+interface GameOption {
+  gameId: number;
+  over: string;
+  under: string;
+  favorite: string;
+  underdog: string;
 }
 
-function isSameGame(gameOne: any, gameTwo: any, gameThree:any): Boolean{
-  return gameOne === gameTwo || gameOne == gameThree;
+interface Selection {
+  over: number | null;
+  under: number | null;
+  favorite: number | null;
+  underdog: number | null;
+  overString?: string;
+  underString?: string;
+  favoriteString?: string;
+  underdogString?: string;
 }
 
+const props = defineProps<{
+  options: {
+    data: GameOption[];
+  };
+  selections: {
+    data: Selection[];
+  };
+}>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Make yer picks',
-        href: '/picks',
-    },
+  {
+    title: 'Make yer picks',
+    href: '/picks',
+  },
 ];
 
-const props = defineProps({
-  options:
-  {
-    type:Object,
-    required:true,
-  },
-  selections:
-  {
-    type:Object,
-    required:true,
-  }
- });
-
- const form = useForm({
-  over: 'n/a',
-  under: 'n/a',
-  favorite: 'n/a',
-  underdog: 'n/a'
+const form = useForm({
+  over: props.selections.data[0]?.over?.toString() ?? 'n/a',
+  under: props.selections.data[0]?.under?.toString() ?? 'n/a',
+  favorite: props.selections.data[0]?.favorite?.toString() ?? 'n/a',
+  underdog: props.selections.data[0]?.underdog?.toString() ?? 'n/a',
 });
 
-const overSelected = ref([]);
-const underSelected = ref([]);
-const favoriteSelected = ref([]);
-const underdogSelected = ref([]);
+const currentSelection = computed(() => props.selections.data[0]);
 
+const hasCurrentPicks = computed(() => {
+  const selection = currentSelection.value;
+  return selection && (selection.over || selection.under || selection.favorite || selection.underdog);
+});
+
+const isGameSelected = (gameId: number, exclude: string) => {
+    if (props.selections.data[0][exclude as keyof Selection] === gameId || form[exclude as keyof typeof form] === gameId.toString()) {
+      return true;
+    }
+  return false;
+};
+
+const overOptions = computed(() => props.options.data.map(option => ({
+  ...option,
+  disabled: isGameSelected(option.gameId, 'under'),
+})));
+
+const underOptions = computed(() => props.options.data.map(option => ({
+  ...option,
+  disabled: isGameSelected(option.gameId, 'over'),
+})));
+
+const favoriteOptions = computed(() => props.options.data.map(option => ({
+  ...option,
+  disabled: isGameSelected(option.gameId, 'underdog'),
+})));
+
+const underdogOptions = computed(() => props.options.data.map(option => ({
+  ...option,
+  disabled: isGameSelected(option.gameId, 'favorite'),
+})));
+
+const submit = () => {
+  form.post('/picks', {
+    onSuccess: () => {
+      form.over = '';
+      form.under = '';
+      form.favorite = '';
+      form.underdog = '';
+    },
+  });
+};
 </script>
 
 <template>
@@ -55,90 +100,66 @@ const underdogSelected = ref([]);
     <meta name="Picks-Pool" content="Picks-Pool">
   </Head>
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div>
-    <h2 v-if="anyPicks(selections.data[0].over, selections.data[0].under, selections.data[0].favorite, selections.data[0].underdog, )"> Current picks:</h2>
-    <p v-if="selections.data[0].over">{{ selections.data[0].overString }}</p>
-    <p v-if="selections.data[0].under">{{ selections.data[0].underString }}</p>
-    <p v-if="selections.data[0].favorite">{{ selections.data[0].favoriteString }}</p>
-    <p v-if="selections.data[0].underdog">{{ selections.data[0].underdogString }}</p>
+    <div v-if="hasCurrentPicks">
+      <h2>Current picks:</h2>
+      <p v-if="currentSelection.overString">{{ currentSelection.overString }}</p>
+      <p v-if="currentSelection.underString">{{ currentSelection.underString }}</p>
+      <p v-if="currentSelection.favoriteString">{{ currentSelection.favoriteString }}</p>
+      <p v-if="currentSelection.underdogString">{{ currentSelection.underdogString }}</p>
     </div>
-    <Form action="/picks" method="post" :resetOnSucces="['over']">
-      <Select v-model="overSelected" name="over">
-        <SelectTrigger class="w-[180px]">
-          <SelectValue placeholder="n/a" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="n/a">
-            n/a
-          </SelectItem>
-          <template v-for="option in options.data">
-            <SelectItem v-if="isSameGame(option.gameId, underSelected, props.selections.data[0].under)" disabled :value="option.gameId">
-              {{ option.over }}
-            </SelectItem>
-            <SelectItem v-else :value="option.gameId">
-              {{ option.over }}
-            </SelectItem>
-          </template>
-        </SelectContent>
-      </Select>
 
-      <Select v-model="underSelected" name="under">
-        <SelectTrigger class="w-[180px]">
-         <SelectValue placeholder="n/a" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="n/a">
-            n/a
-          </SelectItem>
-          <template v-for="option in options.data">
-            <SelectItem v-if="isSameGame( option.gameId, overSelected, props.selections.data[0].over)" disabled :value="option.gameId">
+    <form @submit.prevent="submit">
+      <div class="flex space-x-4">
+        <Select v-model="form.over" name="over">
+          <SelectTrigger class="w-[180px]">
+            <SelectValue placeholder="Over" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="n/a">n/a</SelectItem>
+            <SelectItem v-for="option in overOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
+              {{ option.over }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select v-model="form.under" name="under">
+          <SelectTrigger class="w-[180px]">
+            <SelectValue placeholder="Under" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="n/a">n/a</SelectItem>
+            <SelectItem v-for="option in underOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
               {{ option.under }}
             </SelectItem>
-            <SelectItem v-else :value="option.gameId">
-              {{ option.under}}
-            </SelectItem>
-          </template>
-        </SelectContent>
-      </Select>
+          </SelectContent>
+        </Select>
 
-      <Select v-model="favoriteSelected" name="favorite">
-        <SelectTrigger class="w-[180px]">
-         <SelectValue placeholder="n/a" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="n/a">
-            n/a
-          </SelectItem>
-          <template v-for="option in options.data">
-            <SelectItem v-if="isSameGame( option.gameId, underdogSelected, props.selections.data[0].underdog)" disabled :value="option.gameId">
+        <Select v-model="form.favorite" name="favorite">
+          <SelectTrigger class="w-[180px]">
+            <SelectValue placeholder="Favorite" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="n/a">n/a</SelectItem>
+            <SelectItem v-for="option in favoriteOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
               {{ option.favorite }}
             </SelectItem>
-            <SelectItem v-else :value="option.gameId">
-              {{ option.favorite}}
-            </SelectItem>
-          </template>
-        </SelectContent>
-      </Select>
+          </SelectContent>
+        </Select>
 
-      <Select v-model="underdogSelected" name="underdog">
-        <SelectTrigger class="w-[180px]">
-         <SelectValue placeholder="n/a" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="n/a">
-            n/a
-          </SelectItem>
-          <template v-for="option in options.data">
-            <SelectItem v-if="isSameGame( option.gameId, favoriteSelected, props.selections.data[0].favorite)" disabled :value="option.gameId">
+        <Select v-model="form.underdog" name="underdog">
+          <SelectTrigger class="w-[180px]">
+            <SelectValue placeholder="Underdog" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="n/a">n/a</SelectItem>
+            <SelectItem v-for="option in underdogOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
               {{ option.underdog }}
             </SelectItem>
-            <SelectItem v-else :value="option.gameId">
-              {{ option.underdog}}
-            </SelectItem>
-          </template>
-        </SelectContent>
-      </Select>
-      <Button type="submit" :disabled="form.processing">Submit Picks</button>
-    </Form>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button type="submit" :disabled="form.processing" class="mt-4">Submit Picks</button>
+    </form>
   </AppLayout>
 </template>

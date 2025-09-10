@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->call([
           GamesTableSeeder::class,
-          PicksTableSeeder::class
+          PicksTableSeeder::class,
+          SettingsTableSeeder::class,
         ]);
     }
 }
