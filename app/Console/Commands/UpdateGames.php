@@ -51,7 +51,7 @@ class UpdateGames extends Command
             $updatedCount++;
           }
 
-          $message = 'Successfully updated the "over" and "spread columns for ' . $updatedCount . ' games.';
+          $message = 'Successfully updated the "over" and "spread" columns for ' . $updatedCount . ' games.';
           $this->info($message);
           Log::info($message); // Log success to the application logs
         } catch (\Exception $e) {
