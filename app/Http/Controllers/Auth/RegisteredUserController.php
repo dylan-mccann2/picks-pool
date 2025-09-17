@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
 
         Picks::create([
           'userId' => $user->id,
-          'week' => 1,
+          'week' => config('app.current_week'),
           'over' => 0.0,
           'overId' => '',
           'under' => 0.0,

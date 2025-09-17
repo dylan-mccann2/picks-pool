@@ -11,20 +11,23 @@ use Inertia\Inertia;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use DateTime;
 
 class PicksController extends Controller
 {
     public function index(){
-      $games = GameSelectionResource::collection(Game::all());
+      $now = new DateTime();
+      $games = GameSelectionResource::collection(
+        Game::where('week', config('app.current_week'))->where('startTime', '>', $now)->get());
       $current = auth()->user()->id;
-      $picks = PicksResource::collection(Picks::where('userId', $current)->get()->where('week', '1'));
+      $picks = PicksResource::collection(Picks::where('userId', $current)->get()->where('week', config('app.current_week')));
       return Inertia::render('picks/picks', ['options' => $games, 'selections' => $picks]);
     }
 
     public function store(Request $request){
       $current = auth()->user()->id;
       $input = $request->all();
-      $picks = Picks::where('userId', $current)->get()->where('week', '1')->first();
+      $picks = Picks::where('userId', $current)->get()->where('week', config('app.current_week'))->first();
       if (array_key_exists('over', $input) && $input['over'] != 'n/a'){
         $picks->overId = $input['over'];
         $over = Game::where('gameId', $picks->overId)->first()->over;

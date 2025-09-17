@@ -36,7 +36,7 @@ class UpdateRecords extends Command
         $users = User::all();
         foreach($users as $user){
           $record = Record::where('userId', $user->id)->first();
-          $picks = Picks::where('userId', $user->id)->where('week', 1)->first();
+          $picks = Picks::where('userId', $user->id)->where('week', config('app.current_week'))->first();
           UpdateRecords::calculateOver($picks->overId, $picks->over, $record);
 
           $updatedCount++;

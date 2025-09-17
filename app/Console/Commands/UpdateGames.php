@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Game;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class UpdateGames extends Command
 {
@@ -37,13 +38,14 @@ class UpdateGames extends Command
           foreach ($gamesToUpdate as $game) {
             $id = $game->gameId;
             $ur = 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/'.$id.'/competitions/'.$id.'/odds';
-            $response = file_get_contents($ur);
-            if ($response === FALSE){
+            $response = Http::get($ur);
+            
+            if ($response->failed()){
               $this->error('an error occured fetching the new spreads');
               throw new Exception();
             }
             else{
-              $j = json_decode($response, true);
+              $j = $response->json();
               $ou = $j['items'][0]['overUnder'];
               $spread = $j['items'][0]['homeTeamOdds']['current']['pointSpread']['american'];
             }
