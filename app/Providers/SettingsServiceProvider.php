@@ -32,6 +32,15 @@ class SettingsServiceProvider extends ServiceProvider
             if ($currentWeek) {
                 config(['app.current_week' => $currentWeek]);
             }
+
+            $currentLeader = Cache::rememberForever('settings.current_leader', function(){
+              return Setting::find('current_leader')?->value;
+            });
+
+            if ($currentLeader){
+              config(['app.current_week' => $currentLeader]);
+            }
+
         }
     }
 }

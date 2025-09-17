@@ -15,7 +15,11 @@ class SettingsTableSeeder extends Seeder
     {
         Setting::updateOrCreate(
             ['key' => 'current_week'],
-            ['value' => '2']
+            ['value' => '2'],
+        );
+        Setting::updateOrCreate(
+            ['key' => 'current_leader'],
+            ['value' => '0'],
         );
     }
 }
