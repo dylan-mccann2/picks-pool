@@ -71,6 +71,6 @@ class RegisteredUserController extends Controller
           'userId'=> $user->id,
         ]);
 
-        return to_route('/games');
+        return to_route('games');
     }
 }

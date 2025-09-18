@@ -19,6 +19,11 @@ const mainNavItems: NavItem[] = [
         href: '/picks',
         icon: LayoutGrid,
     },
+    {
+        title: 'Standings',
+        href: '/standings',
+        icon: LayoutGrid
+    },
 ];
 
 const footerNavItems: NavItem[] = [
