@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 
@@ -100,66 +102,93 @@ const submit = () => {
     <meta name="Picks-Pool" content="Picks-Pool">
   </Head>
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div v-if="hasCurrentPicks">
-      <h2>Current picks:</h2>
-      <p v-if="currentSelection.overString">{{ currentSelection.overString }}</p>
-      <p v-if="currentSelection.underString">{{ currentSelection.underString }}</p>
-      <p v-if="currentSelection.favoriteString">{{ currentSelection.favoriteString }}</p>
-      <p v-if="currentSelection.underdogString">{{ currentSelection.underdogString }}</p>
+    <div class="grid gap-6">
+      <Card v-if="hasCurrentPicks">
+        <CardHeader>
+          <CardTitle>Current Picks</CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-2">
+          <p v-if="currentSelection.over" class="text-muted-foreground">{{ currentSelection.overString }}</p>
+          <p v-if="currentSelection.under" class="text-muted-foreground">{{ currentSelection.underString }}</p>
+          <p v-if="currentSelection.favorite" class="text-muted-foreground">{{ currentSelection.favoriteString }}</p>
+          <p v-if="currentSelection.underdog" class="text-muted-foreground">{{ currentSelection.underdogString }}</p>
+        </CardContent>
+      </Card>
+
+      <form @submit.prevent="submit">
+        <Card>
+          <CardHeader>
+            <CardTitle>Make Yer Picks</CardTitle>
+            <CardDescription>Select one option for each category. Leave a category empty or select n/a to keep current pick.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid gap-2">
+                <Label for="over">Over</Label>
+                <Select v-model="form.over" name="over" id="over">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an Over" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="n/a">n/a</SelectItem>
+                    <SelectItem v-for="option in overOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
+                      {{ option.over }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div class="grid gap-2">
+                <Label for="under">Under</Label>
+                <Select v-model="form.under" name="under" id="under">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an Under" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="n/a">n/a</SelectItem>
+                    <SelectItem v-for="option in underOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
+                      {{ option.under }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div class="grid gap-2">
+                <Label for="favorite">Favorite</Label>
+                <Select v-model="form.favorite" name="favorite" id="favorite">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a Favorite" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="n/a">n/a</SelectItem>
+                    <SelectItem v-for="option in favoriteOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
+                      {{ option.favorite }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div class="grid gap-2">
+                <Label for="underdog">Underdog</Label>
+                <Select v-model="form.underdog" name="underdog" id="underdog">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an Underdog" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="n/a">n/a</SelectItem>
+                    <SelectItem v-for="option in underdogOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
+                      {{ option.underdog }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" :disabled="form.processing">Submit Picks</Button>
+          </CardFooter>
+        </Card>
+      </form>
     </div>
-
-    <form @submit.prevent="submit">
-      <div class="flex space-x-4">
-        <Select v-model="form.over" name="over">
-          <SelectTrigger class="w-[180px]">
-            <SelectValue placeholder="Over" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="n/a">n/a</SelectItem>
-            <SelectItem v-for="option in overOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
-              {{ option.over }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select v-model="form.under" name="under">
-          <SelectTrigger class="w-[180px]">
-            <SelectValue placeholder="Under" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="n/a">n/a</SelectItem>
-            <SelectItem v-for="option in underOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
-              {{ option.under }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select v-model="form.favorite" name="favorite">
-          <SelectTrigger class="w-[180px]">
-            <SelectValue placeholder="Favorite" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="n/a">n/a</SelectItem>
-            <SelectItem v-for="option in favoriteOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
-              {{ option.favorite }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select v-model="form.underdog" name="underdog">
-          <SelectTrigger class="w-[180px]">
-            <SelectValue placeholder="Underdog" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="n/a">n/a</SelectItem>
-            <SelectItem v-for="option in underdogOptions" :key="option.gameId" :value="option.gameId.toString()" :disabled="option.disabled">
-              {{ option.underdog }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Button type="submit" :disabled="form.processing" class="mt-4">Submit Picks</button>
-    </form>
   </AppLayout>
 </template>
