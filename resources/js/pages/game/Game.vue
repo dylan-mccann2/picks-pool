@@ -30,22 +30,18 @@ defineProps({
     <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
       <div class="grid auto-rows-min gap-4 md:grid-cols-4 ">
         <Card v-for="game in games.data" class="w-[auto]">
-          <CardContent>
-            <table>
-              <tbody>
-              <tr>
-                <td>{{ game.away }}</td>
-                <td>{{ game.over }}</td>
-              </tr>
-              <tr>
-                <td>{{ game.home }}</td>
-                <td>{{ game.spread }}</td>
-              </tr>
-              </tbody>
-            </table>
+          <CardContent class="p-4 pb-0">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div class="text-left">{{ game.away }}</div>
+              <div class="text-right font-semibold">{{ game.over }}</div>
+              <div class="text-left">{{ game.home }}</div>
+              <div class="text-right font-semibold">{{ game.spread }}</div>
+            </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter class="p-4 pt-0 pb-0">
+            <div class="text-sm text-muted-foreground text-right">
             {{ game.startTime }}
+            </div>
           </CardFooter>
         </Card>
       </div>

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Game;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use DateTime;
 
 class CreateWeeksGames extends Command
 {
@@ -43,7 +44,7 @@ class CreateWeeksGames extends Command
           foreach ($j['events'] as $game){
             $g = Game::create([
             'gameId'=>$game['id'],
-            'startTime' =>  $game['date'],
+            'startTime' => new DateTime($game['date']),
             $game['competitions'][0]['competitors'][0]['homeAway'] => $game['competitions'][0]['competitors'][0]['team']['name'],
             $game['competitions'][0]['competitors'][1]['homeAway'] => $game['competitions'][0]['competitors'][1]['team']['name'],
             'week' => $currentWeek,

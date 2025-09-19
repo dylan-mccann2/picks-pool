@@ -1,0 +1,6 @@
+services:
+  pickspool:
+    image: pickspool
+    build:
+      context: .
+      dockerfile: ./Dockerfile
