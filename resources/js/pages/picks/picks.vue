@@ -102,7 +102,7 @@ const submit = () => {
     <meta name="Picks-Pool" content="Picks-Pool">
   </Head>
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="grid gap-6">
+    <div class="grid gap-6 p-4">
       <Card v-if="hasCurrentPicks">
         <CardHeader>
           <CardTitle>Current Picks</CardTitle>
@@ -119,7 +119,7 @@ const submit = () => {
         <Card>
           <CardHeader>
             <CardTitle>Make Yer Picks</CardTitle>
-            <CardDescription>Select one option for each category. Leave a category empty or select n/a to keep current pick.</CardDescription>
+          <CardDescription>Select one option for each category. Leave a category empty or select n/a to keep current pick.</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
